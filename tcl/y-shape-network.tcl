@@ -1,4 +1,4 @@
-#网络的自定义参数
+#parameters for the network
 set val(stop) 100
 set val(tr) yshape.tr
 set val(chan) Channel/WirelessChannel
@@ -26,13 +26,13 @@ set tracefd [open $val(tr) w]
 $ns trace-all $tracefd
 #建立一个拓扑对象，以记录移动节点在拓扑内移动的情况
 set topo [new Topography]
-#拓扑范围为 1000m*1000m
+#Topology  1000m*1000m
 $topo load_flatgrid $val(x) $val(y)
 #创建物理信道对象
 set chan [new $val(chan)]
 #创建 God 对象
 set god [create-god $val(nn)]
-#节点属性
+#Node properties
 $ns node-config -adhocRouting $val(rp) \
         -llType $val(ll) \
         -macType $val(mac)\
@@ -59,7 +59,7 @@ for {set i 0} {$i < $val(nn)} {incr i} {
     set node_($i) [$ns node]
 }
 
-#节点位置设置
+#Node position
 set n0 [$ns node]
 $n0 set X_ 600
 $n0 set Y_ 804
