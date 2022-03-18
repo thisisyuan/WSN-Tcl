@@ -12,25 +12,25 @@ set val(ifqlen) 50
 set opt(energymodel)    EnergyModel
 set opt(initialenergy)  500           
 set val(nn) 8
-set val(rp) DSR    ;#若使用AODV会Segment fault内存溢出
-set val(x) 1000   ;#模拟场景大小
+set val(rp) DSR    ;#use AODV can cause segment fault, dont know why
+set val(x) 1000   ;#map size
 set val(y) 1000
 
 
-#初始化全局变量
+#Initialize global virables
 set ns [new Simulator]
 #打开 Trace 文件
 set namfd [open ns1.nam w]
 $ns namtrace-all-wireless $namfd $val(x) $val(y)
 set tracefd [open $val(tr) w]
 $ns trace-all $tracefd
-#建立一个拓扑对象，以记录移动节点在拓扑内移动的情况
+#create a topo object, keep track the node movement in the network topology
 set topo [new Topography]
 #Topology  1000m*1000m
 $topo load_flatgrid $val(x) $val(y)
-#创建物理信道对象
+#creat physical channel object
 set chan [new $val(chan)]
-#创建 God 对象
+#Create God object
 set god [create-god $val(nn)]
 #Node properties
 $ns node-config -adhocRouting $val(rp) \
@@ -59,7 +59,7 @@ for {set i 0} {$i < $val(nn)} {incr i} {
     set node_($i) [$ns node]
 }
 
-#Node position
+#set Node position
 set n0 [$ns node]
 $n0 set X_ 600
 $n0 set Y_ 804
@@ -101,18 +101,18 @@ $n7 set Y_ 294
 $n7 set Z_ 0.0
 $ns initial_node_pos $n7 20
 
-#新建一个 UDP Agent 并把它绑定到初始节点上
+#setup a UDP Agent, link the agent to the source node
 set udp0 [new Agent/UDP]
 $ns attach-agent $n0 $udp0
-##新建一个 CBR 流量发生器，设定分组大小为 500Byte，发送间隔为 5ms
+##create CBR traffic generator，set batch size to 500Byte，transmission interval to 5ms
 set cbr0 [new Application/Traffic/CBR]
 $cbr0 set packetSize_ 500
 $cbr0 set interval_ 0.05
 $cbr0 attach-agent $udp0
-#在汇聚节点建立一个数据接受器
+#create a receiver at the sink node
 set null0 [new Agent/Null]
 $ns attach-agent $n7 $null0
-#连接初始节点和汇聚节点的Agent
+#connect the Agents of sink and source 
 $ns connect $udp0 $null0
 $ns at 0.5 "$cbr0 start"
 $ns at 4.5 "$cbr0 stop"
@@ -120,13 +120,13 @@ $ns at 4.5 "$cbr0 stop"
 set sink0 [new Agent/LossMonitor]
 $ns attach-agent $n4 $sink0
 
-#定义节点模拟的结束时间
+# define when simulation ends for each node
 for {set i 0 } {$i<$val(nn)} {incr i} {
     $ns at $val(stop) "$node_($i) reset";
 }
 $ns at $val(stop) "stop"
 $ns at $val(stop) "puts \"NS EXITING...\"; $ns halt"
-#stop 函数
+#stop function
 proc stop {} {
     global ns tracefd namfd
     $ns flush-trace
